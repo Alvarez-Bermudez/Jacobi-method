@@ -29,6 +29,8 @@ void ReadInitialMatrix();
 void SetMMatrix();
 void SetCMatrix();
 void ShowSolutionVectors();
+void ShowMMatrix();
+void ShowCMatrix();
 
 int main()
 {
@@ -41,7 +43,11 @@ int main()
     solutionVectors.push_back(tmpVectorNulo);
 
     int currentTime = 1; // N'umero actual de iteraci'on
-    int times = 10;      // N'umero total de iteraciones
+    int times = 9;      // N'umero total de iteraciones
+    
+    //ShowMMatrix();
+    //ShowCMatrix();
+
     do
     {
         stVector newVector;
@@ -51,7 +57,7 @@ int main()
             newVector.coeff[i] = 0;
             for (int j = 0; j < n; j++)
             {
-                newVector.coeff[i] += M[i][j]*solutionVectors[currentTime-1].coeff[i];
+                newVector.coeff[i] += M[i][j]*solutionVectors[currentTime-1].coeff[j];
             }
             newVector.coeff[i] += C[i];
         }
@@ -64,6 +70,25 @@ int main()
     return 0;
 }
 
+void ShowCMatrix(){
+    cout<<"M Matrix\n";
+    for (int i=0;i<n;i++){
+        cout<<C[i]<<"\n";
+    }
+    cout<<"end M Matrix\n";
+}
+void ShowMMatrix(){
+    
+    cout<<"M Matrix\n";
+    for (int i=0;i<n;i++){
+        for (int j=0;j<n;j++){
+            cout<<M[i][j]<<" ";
+        }
+        cout<<"\n";
+    }
+    cout<<"end M Matrix\n";
+    
+}
 void ShowSolutionVectors()
 {
     for (int i = 0; i < solutionVectors.size(); i++)
