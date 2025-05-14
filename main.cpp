@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include<math.h>
-#include<windows.h>
+
 
 
 using namespace std;
@@ -23,7 +23,7 @@ double b[n]; // T'erminos independientes
 // Matrices para el m'etodo de Jacobi
 double M[n][n]; // matriz M
 double C[n];    // matriz C
-double eta=0.5f;// m'aximo margen de error deseado 
+double eta=0.05f;// m'aximo margen de error deseado 
 double alpha=.0f;// norma d la matriz M
 
 // Vector soluciones aproximadas
@@ -72,29 +72,27 @@ int main()
                 newVector.coeff[i] += M[i][j]*solutionVectors[currentTime-1].coeff[j];
             }
             newVector.coeff[i] += C[i];
-            double helperError=abs(newVector.coeff[i]-solutionVectors[currentTime-1].coeff[i]);
             
-            if (helperError>Error) Error=helperError;
-            
-            printf("helperError %f Error %f \n",helperError,Error);
         }
 
         solutionVectors.push_back(newVector);
         
-        Error*=(alpha)/(1.0f-alpha);
+        for (int i=0;i<n;i++){
+            double helperError=abs(solutionVectors[currentTime].coeff[i]-solutionVectors[currentTime-1].coeff[i]);
+            
+            if (helperError>Error) Error=helperError;
+            
+            //printf("helperError %f Error %f \n",helperError,Error);
+        }
+        Error*=((alpha)/(1.0f-alpha));
 
+        printf("Error %f \n",Error);
+        
         currentTime++;
 
-        //Show solution at i itteration 
-        printf("Iteration %d: ",  currentTime);
-        for (int j = 0; j < n ; j++)
-        {
-            printf("x%d: %f, ", j + 1, solutionVectors[currentTime].coeff[j]);
-        }
-        printf("\n");
 
-        Sleep(300);
-    } while (Error <= eta);
+
+    } while (Error > eta);
 
     ShowSolutionVectors();
     return 0;
