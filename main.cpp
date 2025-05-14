@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include<math.h>
+#include<windows.h>
+
 
 using namespace std;
 
@@ -9,25 +12,32 @@ const int n = 3; // Tamano d la matriz
 
 struct stVector
 {
-    float coeff[n];
+    double coeff[n];
 };
 // MAIN VARIABLES
 FILE *inputFile;
 
 // Valores iniciales para leer
-float a[n][n];
-float b[n]; // T'erminos independientes
+double a[n][n];
+double b[n]; // T'erminos independientes
 // Matrices para el m'etodo de Jacobi
-float M[n][n]; // matriz M
-float C[n];    // matriz C
+double M[n][n]; // matriz M
+double C[n];    // matriz C
+double eta=0.5f;// m'aximo margen de error deseado 
+double alpha=.0f;// norma d la matriz M
+
 // Vector soluciones aproximadas
 vector<stVector> solutionVectors; // Vectores soluci'on obtenidos en cada iteraci'on
+
+double max(double,double);
+double min(double,double);
 
 // SECONDARY FUNCTIONS
 void Initialize();
 void ReadInitialMatrix();
 void SetMMatrix();
 void SetCMatrix();
+void SetAlphaValue();
 void ShowSolutionVectors();
 void ShowMMatrix();
 void ShowCMatrix();
@@ -47,9 +57,11 @@ int main()
     
     //ShowMMatrix();
     //ShowCMatrix();
-
+    double Error;
     do
     {
+        Error=.0f;
+
         stVector newVector;
 
         for (int i = 0; i < n; i++)
@@ -60,14 +72,55 @@ int main()
                 newVector.coeff[i] += M[i][j]*solutionVectors[currentTime-1].coeff[j];
             }
             newVector.coeff[i] += C[i];
+            double helperError=abs(newVector.coeff[i]-solutionVectors[currentTime-1].coeff[i]);
+            
+            if (helperError>Error) Error=helperError;
+            
+            printf("helperError %f Error %f \n",helperError,Error);
         }
+
         solutionVectors.push_back(newVector);
+        
+        Error*=(alpha)/(1.0f-alpha);
 
         currentTime++;
-    } while (currentTime <= times);
+
+        //Show solution at i itteration 
+        printf("Iteration %d: ",  currentTime);
+        for (int j = 0; j < n ; j++)
+        {
+            printf("x%d: %f, ", j + 1, solutionVectors[currentTime].coeff[j]);
+        }
+        printf("\n");
+
+        Sleep(300);
+    } while (Error <= eta);
 
     ShowSolutionVectors();
     return 0;
+}
+
+void SetAlphaValue(){
+    double helper_row=.0f;
+
+    for (int i  =0;i<n;i++){
+        helper_row=.0f;
+
+        for (int j=0;j<n;j++){
+            helper_row+=abs(M[i][j]);
+
+        }
+        alpha=max(alpha,helper_row);
+    }
+}
+
+double max(double a,double b){
+if (a>=b)return a;
+else return b;
+}
+double min(double a,double b){
+    if (a<=b)return a;
+else return b;
 }
 
 void ShowCMatrix(){
@@ -110,6 +163,8 @@ void Initialize()
     ReadInitialMatrix();
     SetMMatrix();
     SetCMatrix();
+    SetAlphaValue();
+
 }
 
 void SetCMatrix()
